@@ -1,76 +1,7 @@
 map function optimisation
 =========================
 
-Level 3 : the road to optimisations
-===================================
+Level 4 : the long journey to optimisation
+==========================================
 
-Now that our benchmark code is up and running, we try to optimize the map
-function code.
-
-The first optimisation is to pre-allocate space in the final container. The
-function for this is 'reserve'.
-
-First, add the reserve method to the map function. Try to compile. What's going on?
-
-SFINAE at the rescue \o/
-------------------------
-
-The issue is that std::list does not have a reserve method. We'd love to call
-the reserve method only on an object that has the method.
-
-The first step is to do a method that will just call the reserve method:
-
-template <class Container>
-void map_reserve(Container& c, size_t const n)
-{
-	c.reserve(n);
-}
-
-and use it in the map function.
-
-For now, we didn't change a thing, apart from putting apart the piece of code
-that has an issue.
-
-What we can do now is use SFINAE (Substitution Failure Is Not An Option). It
-basically tells the compiler that, if a template instance has failures during
-its instantiation, it shouldn't be considered as an error, just a wrong
-candidate.
-
-One trick is to use the std::enable_if template class. Here is its definition:
-
-  template<bool B, class T = void>
-  struct enable_if {};
-   
-  template<class T>
-  struct enable_if<true, T> { typedef T type; };
-
-which means that 'type' exists if and only if B == true.
-
-We can use std::enable_if on one of the argument of map_reserve.
-
-For instance, supposing we have a has_reserve<T> template class that tells whether the reserve method exists:
-
-  template <class Container>
-  typename std::enable_if<has_reserve<Container>::value == true, void>::type map_reserve(Container& c, size_t const n)
-  {
-    c.reserve(n);
-  }
-
-  template <class Container>
-  typename std::enable_if<has_reserve<Container>::value == false, void>::type map_reserve(Container& c, size_t const n)
-  {
-  }
-
-SFINAE allows to choose which implementation of map_reserve will be used!
-
-We miss the has_reserve class. One trick is this one:
-
- template<typename T>
- struct has_reserve
- {
-     template<typename U, size_t (U::*)() const> struct SFINAE {}; 
-     template<typename U> static char Test(SFINAE<U, &U::reserve>*);
-     template<typename U> static int Test(...);
-     static constexpr bool value = sizeof(Test<T>(0)) == sizeof(char);
- };
-
+Specialisation for std::vector - like
