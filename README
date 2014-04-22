@@ -1,0 +1,23 @@
+map function optimisation
+-------------------------
+
+Level 1
+-------
+
+In map.h and bench.cpp, you will find a naïve implementation of a map function.
+This function has the same semantic as the python one, that is:
+
+>>> map(lambda i: i*10, [1,2])
+[10,20]
+
+In C++, this can give :
+
+ std::vector<float> ar = {1, 2};
+ auto ret = map(
+   [](float v) { return 10.0f*v; },
+   ar
+ );
+ for (float v: ret)
+   std::cout << v << std::endl;
+
+Some code to benchmark our map function. Run it several times and save the result !
