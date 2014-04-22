@@ -1,40 +1,76 @@
 map function optimisation
 =========================
 
-Level 2
-=======
+Level 3 : the road to optimisations
+===================================
 
-Our map function is supposed to be generic for any container. To verify this,
-we will use it with an std::list object (question: what exactly is an std::list?).
+Now that our benchmark code is up and running, we try to optimize the map
+function code.
 
-Copy/paste the current code and change the vector object by a list one. Compile
-& run it, and compare the performances.
+The first optimisation is to pre-allocate space in the final container. The
+function for this is 'reserve'.
 
-We'd like to play with other containers, but the copy/paste trick does not
-seem really maintainable. What we'd like to do is having a function that
-wraps the map call around the benchmarking call.
-Something like this (pseudo-code):
+First, add the reserve method to the map function. Try to compile. What's going on?
 
-  std::vector<int> ar;
-  bench("vector",
-    [](float v) { return 2*v; }, ar);
+SFINAE at the rescue \o/
+------------------------
 
-We can use variadic templates and argument forwarding on this one:
+The issue is that std::list does not have a reserve method. We'd love to call
+the reserve method only on an object that has the method.
 
-  template <class Args...>
-  void bench(const char* name, Args && ... args)
+The first step is to do a method that will just call the reserve method:
+
+template <class Container>
+void map_reserve(Container& c, size_t const n)
+{
+	c.reserve(n);
+}
+
+and use it in the map function.
+
+For now, we didn't change a thing, apart from putting apart the piece of code
+that has an issue.
+
+What we can do now is use SFINAE (Substitution Failure Is Not An Option). It
+basically tells the compiler that, if a template instance has failures during
+its instantiation, it shouldn't be considered as an error, just a wrong
+candidate.
+
+One trick is to use the std::enable_if template class. Here is its definition:
+
+  template<bool B, class T = void>
+  struct enable_if {};
+   
+  template<class T>
+  struct enable_if<true, T> { typedef T type; };
+
+which means that 'type' exists if and only if B == true.
+
+We can use std::enable_if on one of the argument of map_reserve.
+
+For instance, supposing we have a has_reserve<T> template class that tells whether the reserve method exists:
+
+  template <class Container>
+  typename std::enable_if<has_reserve<Container>::value == true, void>::type map_reserve(Container& c, size_t const n)
   {
-    // benchmarking start code
-    map(std::forward<Args>(args)...);
-    // benchmarking end code
+    c.reserve(n);
   }
 
-And simply use this function like this:
+  template <class Container>
+  typename std::enable_if<has_reserve<Container>::value == false, void>::type map_reserve(Container& c, size_t const n)
+  {
+  }
 
-  std::vector<float> ar;
-  // init ar...
-  bench("vector", [](int i) { return 2*i; }, ar);
+SFINAE allows to choose which implementation of map_reserve will be used!
 
-  std::list<float> ar2;
-  // init ar2...
-  bench("list", [](int i) { return 2*i; }, ar2);
+We miss the has_reserve class. One trick is this one:
+
+ template<typename T>
+ struct has_reserve
+ {
+     template<typename U, size_t (U::*)() const> struct SFINAE {}; 
+     template<typename U> static char Test(SFINAE<U, &U::reserve>*);
+     template<typename U> static int Test(...);
+     static constexpr bool value = sizeof(Test<T>(0)) == sizeof(char);
+ };
+
