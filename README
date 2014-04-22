@@ -1,23 +1,19 @@
 map function optimisation
--------------------------
+=========================
 
-Level 1
--------
+Level 2
+=======
 
-In map.h and bench.cpp, you will find a naïve implementation of a map function.
-This function has the same semantic as the python one, that is:
+Our map function is supposed to be generic for any container. To verify this,
+we will use it with an std::list object (question: what exactly is an std::list?).
 
->>> map(lambda i: i*10, [1,2])
-[10,20]
+Replace std::vector by std::list in your current code. What's happening?
 
-In C++, this can give :
+The issue is that the "reserve" method does not exist for a container like
+std::list. As we still want to keep the same interface for every container,
+we'd really love to be able to call this method if and only if it exists.
 
- std::vector<float> ar = {1, 2};
- auto ret = map(
-   [](float v) { return 10.0f*v; },
-   ar
- );
- for (float v: ret)
-   std::cout << v << std::endl;
+SFINAE to the rescue \o/
+------------------------
 
-Some code to benchmark our map function. Run it several times and save the result !
+SFINAE (Substitution Failure Is Not An Error) 
