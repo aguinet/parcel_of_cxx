@@ -6,9 +6,9 @@ Container map(Func const& f, Container const& c)
 {
 	Container ret;
 	for (auto const& v: c) {
-		ret.push_back(f(v));
+		ret.emplace_back(std::move(f(v)));
 	}
-	return ret;
+	return std::move(ret);
 }
 
 #endif

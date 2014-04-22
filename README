@@ -1,40 +1,7 @@
 map function optimisation
 =========================
 
-Level 2
+Level 3
 =======
 
-Our map function is supposed to be generic for any container. To verify this,
-we will use it with an std::list object (question: what exactly is an std::list?).
-
-Copy/paste the current code and change the vector object by a list one. Compile
-& run it, and compare the performances.
-
-We'd like to play with other containers, but the copy/paste trick does not
-seem really maintainable. What we'd like to do is having a function that
-wraps the map call around the benchmarking call.
-Something like this (pseudo-code):
-
-  std::vector<int> ar;
-  bench("vector",
-    [](float v) { return 2*v; }, ar);
-
-We can use variadic templates and argument forwarding on this one:
-
-  template <class Args...>
-  void bench(const char* name, Args && ... args)
-  {
-    // benchmarking start code
-    map(std::forward<Args>(args)...);
-    // benchmarking end code
-  }
-
-And simply use this function like this:
-
-  std::vector<float> ar;
-  // init ar...
-  bench("vector", [](int i) { return 2*i; }, ar);
-
-  std::list<float> ar2;
-  // init ar2...
-  bench("list", [](int i) { return 2*i; }, ar2);
+move semantic
