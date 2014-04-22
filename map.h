@@ -41,6 +41,7 @@ typename std::enable_if<has_random_access<Container>::value == true, Container>:
 {
 	Container ret;
 	ret.resize(c.size());
+#pragma omp parallel for
 	for (size_t i = 0; i < c.size(); i++) {
 		ret[i] = std::move(f(c[i]));
 	}

@@ -1,7 +1,7 @@
 map function optimisation
 =========================
 
-Level 4 : the long journey to optimisation
-==========================================
+Level 5 : parallelism
+=====================
 
-Specialisation for std::vector - like
+OpenMP pragma
