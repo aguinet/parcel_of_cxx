@@ -9,12 +9,25 @@
 template <class Container>
 void set(Container& ar, const size_t N)
 {
-	ar.resize(N);
+	ar.clear();
 	for (size_t i = 0; i < N; i++) {
-		ar[i] = i;
+		ar.push_back(i);
 	}
 }
 
+template <typename... Args>
+void __attribute__ ((noinline)) bench(const char* name, Args&& ... args)
+{
+	struct timeval start,end;
+	gettimeofday(&start, nullptr);
+	auto ret = map(std::forward<Args>(args)...);
+	gettimeofday(&end, nullptr);
+
+	const size_t size_data = sizeof(typename decltype(ret)::value_type) * ret.size();
+	const double time = (end.tv_sec+end.tv_usec/1000000.0)-(start.tv_sec+start.tv_usec/1000000.0);
+	std::cout << *ret.begin() << std::endl;
+	std::cout << name << ": " << (time*1000.0) << " ms, BW: " << (2*size_data)/(time*1024.0*1024.0) << " MB/s" << std::endl;
+}
 
 int main(int argc, char** argv)
 {
@@ -25,30 +38,13 @@ int main(int argc, char** argv)
 
 	const size_t N = atoll(argv[1]);
 
-	std::vector<float > ar;
-	set(ar, N);
+	std::vector<float> ar1;
+	set(ar1, N);
+	bench("vector", [](float v) { return 2.0f*v+4.0f; }, ar1);
 
-    struct timeval start,end;
-    gettimeofday(&start, nullptr);
-
-	std::vector<float> ret = map(
-		[](int i) { return 2.0f*i+4.0f; },
-		ar
-	);
-
-    gettimeofday(&end, nullptr);
-
-    const size_t size_data = sizeof(typename decltype(ret)::value_type) * ret.size();
-    const double time = (end.tv_sec+end.tv_usec/1000000.0)-(start.tv_sec+start.tv_usec/1000000.0);
-    std::cout << *ret.begin() << std::endl;
-    std::cout << "perf" << ": " << (time*1000.0) << " ms, BW: " << (2*size_data)/(time*1024.0*1024.0) << " MB/s" << std::endl;
-
-#if 0
-	for (float v: ret) {
-		std::cout << v << ",";
-	}
-	std::cout << std::endl;
-#endif
+	std::list<float> ar2;
+	set(ar2, N);
+	bench("list", [](float v) { return 2.0f*v+4.0f; }, ar2);
 
 	return 0;
 }

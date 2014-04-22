@@ -7,13 +7,34 @@ Level 2
 Our map function is supposed to be generic for any container. To verify this,
 we will use it with an std::list object (question: what exactly is an std::list?).
 
-Replace std::vector by std::list in your current code. What's happening?
+Copy/paste the current code and change the vector object by a list one. Compile
+& run it, and compare the performances.
 
-The issue is that the "reserve" method does not exist for a container like
-std::list. As we still want to keep the same interface for every container,
-we'd really love to be able to call this method if and only if it exists.
+We'd like to play with other containers, but the copy/paste trick does not
+seem really maintainable. What we'd like to do is having a function that
+wraps the map call around the benchmarking call.
+Something like this (pseudo-code):
 
-SFINAE to the rescue \o/
-------------------------
+  std::vector<int> ar;
+  bench("vector",
+    [](float v) { return 2*v; }, ar);
 
-SFINAE (Substitution Failure Is Not An Error) 
+We can use variadic templates and argument forwarding on this one:
+
+  template <class Args...>
+  void bench(const char* name, Args && ... args)
+  {
+    // benchmarking start code
+    map(std::forward<Args>(args)...);
+    // benchmarking end code
+  }
+
+And simply use this function like this:
+
+  std::vector<float> ar;
+  // init ar...
+  bench("vector", [](int i) { return 2*i; }, ar);
+
+  std::list<float> ar2;
+  // init ar2...
+  bench("list", [](int i) { return 2*i; }, ar2);

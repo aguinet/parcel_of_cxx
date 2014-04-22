@@ -5,7 +5,6 @@ template <class Func, class Container>
 Container map(Func const& f, Container const& c)
 {
 	Container ret;
-	ret.reserve(c.size());
 	for (auto const& v: c) {
 		ret.push_back(f(v));
 	}
