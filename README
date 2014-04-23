@@ -4,4 +4,15 @@ map function optimisation
 Level 6 : parallelism
 =====================
 
-OpenMP pragma
+The loop we wrote on the previous level allows us to use the OpenMP
+specification to easily parallelize our function.
+
+Try to add this pragma:
+
+  #pragma omp parallel for
+
+before the for-loop.
+
+Compile your code and benchmark it. It is insteresting to see what's going on with IDA :)
+
+Run the banchmark twice in your code and see if there are any differences.
