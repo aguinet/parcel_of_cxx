@@ -63,6 +63,12 @@ In a more C++-ish way, this would give:
 	}
 	return std::move(ret);
 
-Find out the differences between resize and reserve, and figure out why this would work.
+From there:
+
+- Find out the differences between resize and reserve, and figure out why this would work.
+
+- Change your map function with this, and only compile your benchmark code for the std::vector class. Do you see any improvements?
+
+- Compile with -O3 -march=native -mtune=native. Do you see any improvements? What just happened? (-ftree-vectorizer-verbose=1 might give you some hints ;))
 
 
