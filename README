@@ -1,7 +1,43 @@
 map function optimisation
 =========================
 
-Level 4
-=======
+Level 4 : first optimisation
+----------------------------
+
+When we are using 'emplace_back', the container will grow if necessary. A
+"growing operation" can imply a copy of all the elements of the current buffer,
+which in some situation isn't desirable.
+
+As we already know the number of elements in the final container, we can use
+the 'reserve' method to do a preallocation of the internal buffer.
+
+So:
+
+- Change your code to call "Container::reserve" before inserting all the
+  elements of the container.
+
+- Try to compile your benchmark code. What is the issue?
+
+What we'd like to have is have the reserve method called if and only if the
+Container supports it.
 
 
+SFINAE to the rescue \o/
+------------------------
+
+In order to do this, we first export the reserve call in a separate function:
+
+template <class Container>
+void map_reserve(Container& c, size_t s)
+{
+	c.reserve(s);
+}
+
+Then, we'd like to have this function to be instantiated like this if reserve isn't supported:
+
+template <class Container>
+void map_reserve(Container& c, size_t s)
+{
+}
+
+So we have to find a way to tell our compiler this...
