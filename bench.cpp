@@ -40,17 +40,23 @@ int main(int argc, char** argv)
 
 	std::vector<float> ar1;
 	set(ar1, N);
-	bench("vector", [](float v) { return 2.0f*v+4.0f; }, ar1);
+	bench("vector_seq", [](float v) { return 2.0f*v+4.0f; }, ar1, seq_backend());
+	bench("vector_omp", [](float v) { return 2.0f*v+4.0f; }, ar1, omp_backend());
+	bench("vector_omp", [](float v) { return 2.0f*v+4.0f; }, ar1, omp_backend());
+	bench("vector_tbb", [](float v) { return 2.0f*v+4.0f; }, ar1, omp_backend());
 
 	std::list<float> ar2;
 	set(ar2, N);
-	bench("list", [](float v) { return 2.0f*v+4.0f; }, ar2);
+	bench("list", [](float v) { return 2.0f*v+4.0f; }, ar2, seq_backend());
 
 	std::vector<String> strs;
 	for (size_t i = 0; i < N; i++) {
 		strs.emplace_back(String("my little poney"));
 	}
-	bench("str", [](String const& s) { return std::move(s.to_upper()); }, strs);
+	bench("str", [](String const& s) { return std::move(s.to_upper()); }, strs, seq_backend());
+	bench("str_omp", [](String const& s) { return std::move(s.to_upper()); }, strs, omp_backend());
+	bench("str_omp", [](String const& s) { return std::move(s.to_upper()); }, strs, omp_backend());
+	bench("str_tbb", [](String const& s) { return std::move(s.to_upper()); }, strs, omp_backend());
 
 	return 0;
 }

@@ -1,6 +1,21 @@
 #ifndef MAP_H
 #define MAP_H
 
+#include <type_traits>
+#include <tbb/parallel_for.h>
+
+struct backend
+{ };
+
+struct seq_backend: public backend
+{ };
+
+struct omp_backend: public backend
+{ };
+
+struct tbb_backend: public backend
+{ };
+
 template<typename T>
 struct has_reserve
 {
@@ -25,8 +40,14 @@ inline typename std::enable_if<has_reserve<Container>::value == false, void>::ty
 {
 }
 
+template <class Func, class Container, class Backend>
+Container map(Func const&, Container const&, Backend const&)
+{
+	static_assert(std::is_base_of<backend, Backend>::value, "unknown backend");
+}
+
 template <class Func, class Container>
-typename std::enable_if<has_random_access<Container>::value == false, Container>::type map(Func const& f, Container const& c)
+typename std::enable_if<has_random_access<Container>::value == false, Container>::type map(Func const& f, Container const& c, seq_backend const&)
 {
 	Container ret;
 	map_reserve(ret, c.size());
@@ -37,7 +58,18 @@ typename std::enable_if<has_random_access<Container>::value == false, Container>
 }
 
 template <class Func, class Container>
-typename std::enable_if<has_random_access<Container>::value == true, Container>::type map(Func const& f, Container const& c)
+typename std::enable_if<has_random_access<Container>::value == true, Container>::type map(Func const& f, Container const& c, seq_backend const&)
+{
+	Container ret;
+	ret.resize(c.size());
+	for (size_t i = 0; i < c.size(); i++) {
+		ret[i] = std::move(f(c[i]));
+	}
+	return std::move(ret);
+}
+
+template <class Func, class Container>
+typename std::enable_if<has_random_access<Container>::value == true, Container>::type map(Func const& f, Container const& c, omp_backend const&)
 {
 	Container ret;
 	ret.resize(c.size());
@@ -45,6 +77,22 @@ typename std::enable_if<has_random_access<Container>::value == true, Container>:
 	for (size_t i = 0; i < c.size(); i++) {
 		ret[i] = std::move(f(c[i]));
 	}
+	return std::move(ret);
+}
+
+template <class Func, class Container>
+typename std::enable_if<has_random_access<Container>::value == true, Container>::type map(Func const& f, Container const& c, tbb_backend const&)
+{
+	Container ret;
+	ret.resize(c.size());
+	tbb::parallel_for(
+		tbb::blocked_range<size_t>(0, c.size()),
+		[&ret,&c,&f](tbb::blocked_range<size_t> const& r)
+		{
+			for (size_t i = r.begin(); i != r.end(); i++) {
+				ret[i] = std::move(f(c[i]));
+			}
+		});
 	return std::move(ret);
 }
 

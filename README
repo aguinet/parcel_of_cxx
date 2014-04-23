@@ -1,7 +1,7 @@
 map function optimisation
 =========================
 
-Level 5 : parallelism
-=====================
+Level 6 : backends
+==================
 
-OpenMP pragma
+Backend concept to choose the map implemantation
