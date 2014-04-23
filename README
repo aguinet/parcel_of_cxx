@@ -17,7 +17,7 @@ Something like this (pseudo-code):
 
   std::vector<int> ar;
   bench("vector",
-    [](float v) { return 2*v; }, ar);
+    [](float v) { return 10.0f*v; }, ar);
 
 We can use variadic templates and argument forwarding on this one:
 
