@@ -83,4 +83,10 @@ function would instantiate as the one we previously wrote.
 SFINAE back to the resuce !
 ---------------------------
 
-We will use the SFINAE trick as in level2.
+We will use the SFINAE trick as in the previous level!
+
+- Write a class that allows you to check whether a Container type has random access iterators
+
+- Use SFINAE to specialise your map function
+
+- Benchmark the whole thing :)
