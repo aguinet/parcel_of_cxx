@@ -20,4 +20,4 @@ In C++, this can give :
  for (float v: ret)
    std::cout << v << std::endl;
 
-Some code to benchmark our map function. Run it several times and save the result !
+Some code is given to benchmark our map function. Run it several times and save the result !
