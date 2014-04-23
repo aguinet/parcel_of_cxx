@@ -4,4 +4,5 @@ map function optimisation
 Level 3
 =======
 
-move semantic
+We will use the move semantics here to directly insert the objects returned by the function `f'.
+Remember std::move and use the emplace_back function (see std::vector::emplace_back for an example).
