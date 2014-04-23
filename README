@@ -1,7 +1,8 @@
 map function optimisation
 =========================
 
-Level 6 : backends
+Level 7 : backends
 ==================
 
-Backend concept to choose the map implemantation
+What would be nice is to let the user choose between a sequential or a parallel
+implementation of our map function.
