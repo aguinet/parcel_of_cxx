@@ -1,7 +1,7 @@
 CXX=g++
 CC=g++
-CXXFLAGS=-O3 -g -std=c++11 -Wall -Wextra -fopenmp -march=native -mtune=native
-LDFLAGS=-ltbb -ltbbmalloc -fopenmp
+CXXFLAGS=-O2 -g -std=c++11 -Wall -Wextra
+LDFLAGS=
 
 bench: bench.o
 
