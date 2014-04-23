@@ -40,4 +40,42 @@ void map_reserve(Container& c, size_t s)
 {
 }
 
-So we have to find a way to tell our compiler this...
+So we have to find a way to tell our compiler this... SFINAE (Substitution
+Failure Is Not An Error) is a technique that allows to not take a template
+instantiation into account if there is an error during the substitution of
+elements. Thus, we can have the two versions above, and make sure that only one
+is valid at a time.
+
+std::enable_if is one way to do this. Here is its definition:
+
+  template<bool B, class T = void>
+  struct enable_if {};
+   
+  template<class T>
+  struct enable_if<true, T> { typedef T type; };
+
+It defines a type named `type' if and only if B == true. So, we can make the
+compiler choose the good implementation this way:
+
+  template <class Container>
+  void map_reserve(Container& c, typename std::enable_if<has_reserve<Container>::value == true, size_t>::type s)
+  {
+  	c.reserve(s);
+  }
+  
+  template <class Container>
+  void map_reserve(Container& c, typename std::enable_if<has_reserve<Container>::value == false, size_t>::type s)
+  {
+  }
+
+We suppose that we have the has_reserve class, like this one:
+
+
+  template<typename T>
+  struct has_reserve
+  {
+      template<typename U, size_t (U::*)() const> struct SFINAE {}; 
+      template<typename U> static char Test(SFINAE<U, &U::reserve>*);
+      template<typename U> static int Test(...);
+      static constexpr bool value = sizeof(Test<T>(0)) == sizeof(char);
+  };
