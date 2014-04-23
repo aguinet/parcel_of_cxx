@@ -65,10 +65,22 @@ In a more C++-ish way, this would give:
 
 From there:
 
-- Find out the differences between resize and reserve, and figure out why this would work.
+- Find out the differences between resize and reserve, and figure out why this
+  would work.
 
-- Change your map function with this, and only compile your benchmark code for the std::vector class. Do you see any improvements?
+- Change your map function with this code, and only compile your benchmark code
+  for the std::vector class. Do you see any improvements?
 
-- Compile with -O3 -march=native -mtune=native. Do you see any improvements? What just happened? (-ftree-vectorizer-verbose=1 might give you some hints ;))
+- Compile with -O3 -march=native -mtune=native. Do you see any improvements?
+  What just happened? (-ftree-vectorizer-verbose=1 might give you some hints
+  ;))
 
+- Use IDA to confirm your findings.
 
+What whould be great is that, if we have a container that suppors it, the map
+function would instantiate as the one we previously wrote. 
+
+SFINAE back to the resuce !
+---------------------------
+
+We will use the SFINAE trick as in level2.
