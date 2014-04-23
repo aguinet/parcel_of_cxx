@@ -4,4 +4,65 @@ map function optimisation
 Level 4 : the long journey to optimisation
 ==========================================
 
-Specialisation for std::vector - like
+Now that we have our benchmark code factorized and running for std::vector and
+std::list, we would like to see if there is some room for optimisations, without
+changing the benchmarking code.
+
+"Random access" container
+-------------------------
+
+An std::vector object can simply be viewed as a continuous buffer in memory.
+Typically, such objects have these properties:
+
+ * a pointer to this buffer
+ * the size of the allocated memory
+ * the size of the *actual* number of elements in this buffer (smaller than the
+   previous)
+
+When the `reserve' function is called, the buffer is grown to the given size,
+but the number of actual elements in the buffer stays the same. The `push_back'
+and `emplace_back' functions will change this size.
+
+Thus, the previous code that we had, that is:
+
+	Container ret;
+	map_reserve(ret, c.size());
+	for (auto const& v: c) {
+		ret.emplace_back(std::move(f(v)));
+	}
+
+Actually does this (pseudo-code):
+
+	Container ret;
+	ret._size = 0;
+    ret._buffer = malloc(c.size()*sizeof(T));
+	ret._buffer_size = c.size();
+	for (auto const& v: c) {
+		ret._buffer[ret._size] = std::move(f(v));
+		ret._size++;
+	}
+
+One can arguy that we could juste make one addition for the size, and simply do:
+
+
+	Container ret;
+	ret._size = 0;
+    ret._buffer = malloc(c.size()*sizeof(T));
+	ret._buffer_size = c.size();
+	ret._size += c.size();
+	for (size_t i = 0; i < c.size(); i++) {
+		ret._buffer[i] = std::move(f(c[i]));
+	}
+
+In a more C++-ish way, this would give:
+
+	Container ret;
+	ret.resize(c.size());
+	for (size_t i = 0; i < c.size(); i++) {
+		ret[i] = std::move(f(c[i]));
+	}
+	return std::move(ret);
+
+Find out the differences between resize and reserve, and figure out why this would work.
+
+
