@@ -52,7 +52,7 @@ typename std::enable_if<has_random_access<Container>::value == false, Container>
 	Container ret;
 	map_reserve(ret, c.size());
 	for (auto const& v: c) {
-		ret.emplace_back(std::move(f(v)));
+		ret.emplace_back(f(v));
 	}
 	return std::move(ret);
 }
@@ -63,7 +63,7 @@ typename std::enable_if<has_random_access<Container>::value == true, Container>:
 	Container ret;
 	ret.resize(c.size());
 	for (size_t i = 0; i < c.size(); i++) {
-		ret[i] = std::move(f(c[i]));
+		ret[i] = f(c[i]);
 	}
 	return std::move(ret);
 }
@@ -75,7 +75,7 @@ typename std::enable_if<has_random_access<Container>::value == true, Container>:
 	ret.resize(c.size());
 #pragma omp parallel for
 	for (size_t i = 0; i < c.size(); i++) {
-		ret[i] = std::move(f(c[i]));
+		ret[i] = f(c[i]);
 	}
 	return std::move(ret);
 }
@@ -90,7 +90,7 @@ typename std::enable_if<has_random_access<Container>::value == true, Container>:
 		[&ret,&c,&f](tbb::blocked_range<size_t> const& r)
 		{
 			for (size_t i = r.begin(); i != r.end(); i++) {
-				ret[i] = std::move(f(c[i]));
+				ret[i] = f(c[i]);
 			}
 		});
 	return std::move(ret);
