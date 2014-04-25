@@ -11,7 +11,7 @@ Try to add this directive::
 
   #pragma omp parallel for
 
-before the for-loop. #SG: p'tet parler du default(none) qui te permet de tchatcher un peu plus ?
+before the for-loop.
 
 Compile your code and benchmark it. It is interesting to see what's going on with IDA :)
 
