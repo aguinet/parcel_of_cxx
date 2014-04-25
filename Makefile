@@ -3,8 +3,8 @@ CC=g++
 CXXFLAGS=-O2 -g -std=c++11 -Wall -Wextra
 LDFLAGS=
 
-bench: bench.o
+all:bench
 
 clean:
-	rm *.o
-	rm bench
+	$(RM) *.o
+	$(RM) bench
