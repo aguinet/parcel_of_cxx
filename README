@@ -7,12 +7,12 @@ Level 6 : parallelism
 The loop we wrote on the previous level allows us to use the OpenMP
 specification to easily parallelize our function.
 
-Try to add this pragma:
+Try to add this directive::
 
   #pragma omp parallel for
 
-before the for-loop.
+before the for-loop. #SG: p'tet parler du default(none) qui te permet de tchatcher un peu plus ?
 
-Compile your code and benchmark it. It is insteresting to see what's going on with IDA :)
+Compile your code and benchmark it. It is interesting to see what's going on with IDA :)
 
-Run the banchmark twice in your code and see if there are any differences.
+Run the benchmark twice in your code and see if there are any differences.

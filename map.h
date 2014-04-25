@@ -4,7 +4,7 @@
 template<typename T>
 struct has_reserve
 {
-    template<typename U, size_t (U::*)() const> struct SFINAE {}; 
+    template<typename U, size_t (U::*)() const> struct SFINAE {};
     template<typename U> static char Test(SFINAE<U, &U::reserve>*);
     template<typename U> static int Test(...);
     static constexpr bool value = sizeof(Test<T>(0)) == sizeof(char);
