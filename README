@@ -4,16 +4,16 @@ map function optimisation
 Level 4 : first optimisation
 ----------------------------
 
-When we are using 'emplace_back', the container will grow if necessary. A
-"growing operation" can imply a copy of all the elements of the current buffer,
+When we are using ``emplace_back``, the container will grow if necessary. A
+growing operation can imply a copy of all the elements of the current buffer,
 which in some situation isn't desirable.
 
 As we already know the number of elements in the final container, we can use
-the 'reserve' method to do a preallocation of the internal buffer.
+the ``reserve`` method to do a preallocation of the internal buffer.
 
 So:
 
-- Change your code to call "Container::reserve" before inserting all the
+- Change your code to call ``Container::reserve`` before inserting all the
   elements of the container.
 
 - Try to compile your benchmark code. What is the issue?
@@ -25,20 +25,20 @@ Container supports it.
 SFINAE to the rescue \o/
 ------------------------
 
-In order to do this, we first export the reserve call in a separate function:
+In order to do this, we first export the reserve call in a separate function::
 
-template <class Container>
-void map_reserve(Container& c, size_t s)
-{
-	c.reserve(s);
-}
+    template <class Container>
+    void map_reserve(Container& c, size_t s)
+    {
+        c.reserve(s);
+    }
 
-Then, we'd like to have this function to be instantiated like this if reserve isn't supported:
+Then, we'd like to have this function to be instantiated like this if reserve isn't supported::
 
-template <class Container>
-void map_reserve(Container& c, size_t s)
-{
-}
+    template <class Container>
+    void map_reserve(Container& c, size_t s)
+    {
+    }
 
 So we have to find a way to tell our compiler this... SFINAE (Substitution
 Failure Is Not An Error) is a technique that allows to not take a template
@@ -46,35 +46,35 @@ instantiation into account if there is an error during the substitution of
 elements. Thus, we can have the two versions above, and make sure that only one
 is valid at a time.
 
-std::enable_if is one way to do this. Here is its definition:
+``std::enable_if`` is one way to do this. Here is its definition::
 
   template<bool B, class T = void>
   struct enable_if {};
-   
+
   template<class T>
   struct enable_if<true, T> { typedef T type; };
 
-It defines a type named `type' if and only if B == true. So, we can make the
-compiler choose the good implementation this way:
+It defines a type named ``type`` if and only if B == true. So, we can make the
+compiler choose the good implementation this way::
 
   template <class Container>
   void map_reserve(Container& c, typename std::enable_if<has_reserve<Container>::value == true, size_t>::type s)
   {
   	c.reserve(s);
   }
-  
+
   template <class Container>
   void map_reserve(Container& c, typename std::enable_if<has_reserve<Container>::value == false, size_t>::type s)
   {
   }
 
-We suppose that we have the has_reserve class, like this one:
+We suppose that we have the has_reserve class, like this one::
 
 
   template<typename T>
   struct has_reserve
   {
-      template<typename U, size_t (U::*)() const> struct SFINAE {}; 
+      template<typename U, size_t (U::*)() const> struct SFINAE {};
       template<typename U> static char Test(SFINAE<U, &U::reserve>*);
       template<typename U> static int Test(...);
       static constexpr bool value = sizeof(Test<T>(0)) == sizeof(char);
