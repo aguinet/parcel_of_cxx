@@ -1,8 +1,9 @@
 #include <iostream>
 #include <vector>
 #include <list>
-#include <sys/time.h>
-#include <math.h>
+#include <numeric>
+#include <chrono>
+#include <cmath>
 
 #include "map.h"
 
@@ -28,20 +29,20 @@ int main(int argc, char** argv)
 	std::vector<float > ar;
 	set(ar, N);
 
-    struct timeval start,end;
-    gettimeofday(&start, nullptr);
+    std::chrono::system_clock clock;
+    auto start = clock.now();
 
 	std::vector<float> ret = map(
-		[](int i) { return 2.0f*i+4.0f; },
+		[](size_t i) { return 2.0f*i+4.0f; },
 		ar
 	);
 
-    gettimeofday(&end, nullptr);
+    auto stop = clock.now();
 
     const size_t size_data = sizeof(typename decltype(ret)::value_type) * ret.size();
-    const double time = (end.tv_sec+end.tv_usec/1000000.0)-(start.tv_sec+start.tv_usec/1000000.0);
+    const double time = (stop - start).count();
     std::cout << *ret.begin() << std::endl;
-    std::cout << "perf" << ": " << (time*1000.0) << " ms, BW: " << (2*size_data)/(time*1024.0*1024.0) << " MB/s" << std::endl;
+    std::cout << "perf" << ": " << (time / 1000) << " ms, BW: " << (2*size_data * 10e6)/(time*1024.0*1024.0) << " MB/s" << std::endl;
 
 #if 0
 	for (float v: ret) {
