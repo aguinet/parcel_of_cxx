@@ -1,8 +1,7 @@
 map function optimisation
 =========================
 
-Level 7 : backends
-==================
+Level 8 : python bindings
+=========================
 
-What would be nice is to let the user choose between a sequential or a parallel
-implementation of our map function.
+We are now using boot python to create a python binding for our map optimized function.
