@@ -1,0 +1,8 @@
+Welcome to the Parcel of CXX tutorial!
+======================================
+
+This tutorial shows how C++ can be used to optimise some algorithms in advantageous situations.
+
+Go on with the first level by checking out the "level1" branch:
+
+  $ git checkout level1
