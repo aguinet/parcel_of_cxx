@@ -26,8 +26,11 @@ struct has_reserve
 };
 
 template <typename Container>
-struct has_random_access: public std::is_same<typename std::iterator_traits<typename Container::const_iterator>::iterator_category, std::random_access_iterator_tag>
-{ };
+struct has_random_access: public std::is_same<
+	typename std::iterator_traits<typename Container::const_iterator>::iterator_category,
+	std::random_access_iterator_tag>
+{
+};
 
 template <class Container>
 inline typename std::enable_if<has_reserve<Container>::value == true, void>::type map_reserve(Container& c, size_t const n)
@@ -44,6 +47,12 @@ template <class Func, class Container, class Backend>
 Container map(Func const&, Container const&, Backend const&)
 {
 	static_assert(std::is_base_of<backend, Backend>::value, "unknown backend");
+}
+
+template <class Func, class Container>
+Container map(Func const& f, Container const& c)
+{
+	return map(f, c, seq_backend());
 }
 
 template <class Func, class Container>

@@ -40,6 +40,7 @@ int main(int argc, char** argv)
 
 	std::vector<float> ar1;
 	set(ar1, N);
+	bench("vector_seq", [](float v) { return 2.0f*v+4.0f; }, ar1);
 	bench("vector_seq", [](float v) { return 2.0f*v+4.0f; }, ar1, seq_backend());
 	bench("vector_omp", [](float v) { return 2.0f*v+4.0f; }, ar1, omp_backend());
 	bench("vector_omp", [](float v) { return 2.0f*v+4.0f; }, ar1, omp_backend());
